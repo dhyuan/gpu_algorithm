@@ -122,13 +122,6 @@ def calculate_files_block_thread_index(files_features_index_dict, test_len, thre
     return file_block_thread_map
 
 
-def debug(h_debug_info):
-    print(h_debug_info)
-    err_indexes = h_debug_info[np.where(h_debug_info > 0)]
-    min_index = np.min(err_indexes)
-    print('err_size=%d  minIndex=%d' % (len(err_indexes), min_index))
-
-
 def calculate_result(test_file, files_index, h_results, test_len, value):
     cpu_find_result_begin_time = datetime.now()
 
@@ -281,9 +274,6 @@ def take_first(elem):
 
 
 def find_most_probability(results, test_len, value):
-    tmp_results = np.empty((0, 3), dtype=np.float32)
-    top_results = np.empty((0, 3), dtype=np.float32)
-
     max_result = 0.15
     max_frame = 0
     max_file_index = -1
@@ -291,31 +281,51 @@ def find_most_probability(results, test_len, value):
     interval = test_len - 2
     max_flag = 0
 
+    begin_time_filter = datetime.now()
     possible_results = results[np.where((results[:, 0] > max_result))]
     print('len of from %d to %d' % (len(results), len(possible_results)))
-
+    end_time_filter = datetime.now()
+    print('filter values from result time: %s' % (end_time_filter - begin_time_filter))
     results = possible_results
 
-    for i in range(len(results)):
-        frame_probability = results[i][0]
-        frame_index = results[i][1] + 1
-        file_index = results[i][2]
-        if frame_probability > max_result:
-            max_result = frame_probability
-            max_frame = frame_index
-            max_file_index = file_index
-            max_flag = 1
-            continue
-        if max_result - frame_probability < value and results[i][1] - max_frame > interval:
-            tmp_results = np.vstack([tmp_results, [frame_probability, frame_index, file_index]])
+    tmp_results = []
+    # for i in range(len(results)):
+    #     frame_probability = results[i][0]
+    #     frame_index = results[i][1] + 1
+    #     file_index = results[i][2]
+    #     if frame_probability > max_result:
+    #         max_result = frame_probability
+    #         max_frame = frame_index
+    #         max_file_index = file_index
+    #         max_flag = 1
+    #         continue
+    #     if max_result - frame_probability < value and results[i][1] - max_frame > interval:
+    #         tmp_results.append([frame_probability, frame_index, file_index])
+    # end_time_find_max = datetime.now()
+    # print('find Max value from result time: %s' % (end_time_find_max - end_time_filter))
+    end_time_find_max1 = datetime.now()
+    (rowa, cola) = np.where(results == np.max(results, axis=0))
+    print(results[rowa[0]][cola[0]])
+    print(results[rowa[1]][cola[1]])
+    print(results[rowa[2]][cola[2]])
 
+    max_result = results[rowa[0]][cola[0]]
+    max_frame = results[rowa[0]][cola[1]]
+    max_file_index = results[rowa[0]][cola[2]]
+    if max_result > 0:
+        max_flag = 1
+    print("##############")
+    end_time_find_max2 = datetime.now()
+    print('find Max value by Numpy from result time: %s' % (end_time_find_max2 - end_time_find_max1))
+
+    top_results = []
     if max_flag == 1:
-        max = (max_result, max_frame, max_file_index)
-        top_results = np.vstack([top_results, [max_result, max_frame, max_file_index]])
+        top_results.append([max_result, max_frame, max_file_index])
         for i in range(len(tmp_results)):
             if max_result - tmp_results[i][0] < value:
-                top_results = np.vstack([top_results, [tmp_results[i][0], tmp_results[i][1], tmp_results[i][2]]])
-                # top_results.append((tmp_results[i][0], tmp_results[i][1], tmp_results[i][2]))
+                top_results.append([tmp_results[i][0], tmp_results[i][1], tmp_results[i][2]])
+        end_time_find_final_result = datetime.now()
+        print('find Max value from result time: %s' % (end_time_find_final_result - end_time_find_max2))
         return (top_results)
     else:
         return (None)

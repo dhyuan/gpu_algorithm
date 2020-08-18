@@ -9,18 +9,16 @@ def __trans_source_data_to_tuple(data):
     return float(ds[1]), float(ds[2]), float(ds[3]), float(ds[4])
 
 
-def restore_source_features_from_files(fid='./data/file_index_dict.dat',
-                                       asf='./data/all_source_features.dat',
-                                       fia='data/file_features_index_array.dat'):
-    file_index_dict = {}
-    all_source_features = []
-    file_features_index_array = []
-
-    persist_to_file(file_index_dict, fid)
-    persist_to_file(all_source_features, asf)
-    persist_to_file(file_features_index_array, fia)
-
+def restore_source_features_from_files(data_file):
+    data = restore_from_file(data_file)
+    file_index_dict = data[0]
+    all_source_features = data[1]
+    file_features_index_array = data[2]
     return file_index_dict, all_source_features, file_features_index_array
+
+
+def persist_source_features_to_files(file_index_dict, all_source_features, file_features_index_array, data_file):
+    persist_to_file((file_index_dict, all_source_features, file_features_index_array), data_file)
 
 
 def read_sources_features_from_dir(features_dir, f_features_transformer=__trans_source_data_to_tuple):

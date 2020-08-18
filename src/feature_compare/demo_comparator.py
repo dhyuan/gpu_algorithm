@@ -4,11 +4,15 @@ from datetime import datetime
 from features_comparator import copy_all_sources_features_to_gpu, compare_by_gpu
 from features_comparator import copy_test_features_to_gpu, calculate_result
 from features_loader import read_sources_features_from_dir, read_test_features_from_file, get_files_from_dir
+from features_loader import persist_source_features_to_files, restore_source_features_from_files
 
 
 def demo_compare(test_dir, sources_dir, value=0.05):
     # Step 1: 从source features目录读取特征值。
+    # (file_index_dict, all_source_features, file_features_index_array) = restore_source_features_from_files('./data/test_data.dat')
+
     file_index_dict, all_source_features, file_features_index_array = read_sources_features_from_dir(sources_dir)
+    persist_source_features_to_files(file_index_dict, all_source_features, file_features_index_array, './data/test_data.dat')
 
     # Step 2: 将所有源特征合集导入GPU
     d_all_sources_features_in_gpu = copy_all_sources_features_to_gpu(all_source_features)
@@ -35,7 +39,7 @@ def demo_compare(test_dir, sources_dir, value=0.05):
 
 if __name__ == '__main__':
     source_files_dir = './data/source'  # 比对 所有源的特征值文本 存放路径
-    source_files_dir = '/storage/auto_test/source_result'  # 比对 所有源的特征值文本 存放路径
+    # source_files_dir = '/storage/auto_test/source_result'  # 比对 所有源的特征值文本 存放路径
     test_files_dir = './data/test'
 
     demo_compare(test_files_dir, source_files_dir, 0.05)
