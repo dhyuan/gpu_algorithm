@@ -1,0 +1,13 @@
+FROM tensorflow/tensorflow:1.15.0-gpu-py3
+
+WORKDIR /app/feature_abstracter
+
+COPY model /app/feature_abstracter/model
+COPY images   /app/feature_abstracter/images
+COPY src   /app/feature_abstracter/src
+
+VOLUME ["/source/images", "/log"]
+
+#ENV LANG="en_US.UTF-8"
+
+CMD python3 /app/feature_abstracter/src/feature_abstracter.py
